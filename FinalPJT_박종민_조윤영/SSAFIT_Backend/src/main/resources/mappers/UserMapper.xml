@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace에 어디서 가져올 지 정확히 경로 적어주기 -->
+<mapper namespace="com.ssafy.ssafit.model.dao.UserDao">
+
+	<!-- 나중에 sql문에 resultMap을 사용할 때 사용되므로 db의 이름과 dto의 이름을 정확히 적어주기 -->
+	<resultMap id="userMap" type="User">
+		<result property="userSeq" column="user_seq"/>
+		<result property="userName" column="user_name"/>
+		<result property="userId" column="user_id"/>
+		<result property="userPwd" column="user_pwd"/>
+		<result property="userNickname" column="user_nickname"/>
+		<result property="userType" column="user_type"/>
+		<result property="userMnpoint" column="user_mnpoint"/>
+	</resultMap>
+
+	<!-- 유저를 생성하기 위한 create 작성 -->
+	<insert id="insertUser" parameterType="User">
+		INSERT INTO user (user_name, user_id, user_pwd, user_nickname)
+				  VALUES (#{userName}, #{userId}, #{userPwd}, #{userNickname}); 
+	</insert>
+
+	<!-- 유저의 아이디로 유저 하나 가져오기 -->
+	<select id="selectByUserId" parameterType="String" resultMap="userMap">
+		SELECT * 
+		  FROM user 
+		 WHERE user_id = #{userId};
+	</select>
+
+	<!-- 유저의 매너 포인트로 유저 가져오기 -->
+	<select id="selectByUserMnpoint" resultMap="userMap">
+		SELECT *
+		  FROM USER
+		 <!-- order by를 사용해서 높은 순 (고 위험군)부터 가져오자 -->
+		 ORDER BY user_mnpoint DESC; 
+	</select>
+
+	<!-- 전체 리스트 가져오기 -->
+	<select id="userSelectAll" resultMap="userMap">
+		SELECT * 
+		  FROM USER; 
+	</select>
+
+	<!-- 유저 업데이트 -->
+	<update id="updateUser" parameterType="User">
+		UPDATE user 
+		   SET user_id = #{userId}
+		     , user_pwd = #{userPwd}
+		     , user_nickname = #{userNickname}
+		 WHERE user_id = #{userId}; 
+	</update>
+
+	<!-- 유저 삭제 -->
+	<delete id="deleteUser" parameterType="String">
+		DELETE FROM user 
+		 WHERE user_id = #{userId}; 
+	</delete>
+
+</mapper>

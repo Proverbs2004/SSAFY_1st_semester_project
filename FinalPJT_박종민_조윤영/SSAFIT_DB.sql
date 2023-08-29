@@ -1,0 +1,155 @@
+DROP DATABASE IF EXISTS SSAFIT_DB;
+CREATE DATABASE SSAFIT_DB;
+USE SSAFIT_DB;
+
+
+CREATE TABLE IF NOT EXISTS USER (
+  `user_seq` INT PRIMARY KEY AUTO_INCREMENT,
+  `user_name` VARCHAR(45) NOT NULL,
+  `user_id` VARCHAR(30) NOT NULL UNIQUE,
+  `user_pwd` VARCHAR(45) NOT NULL,
+  `user_nickname` VARCHAR(45) NOT NULL UNIQUE,
+  `user_type` VARCHAR(45) DEFAULT '일반회원',
+  `user_mnpoint` INT DEFAULT 0)
+ENGINE = InnoDB;
+
+-- SELECT * FROM user_constraints WHERE TABLE_NAME = 'USER';
+
+INSERT INTO 
+  USER (USER_NAME, USER_ID, USER_PWD, USER_NICKNAME)
+VALUES ('조윤영', 'dd39', 'pw123', '윤공(관리자)');
+
+INSERT INTO 
+  USER (USER_NAME, USER_ID, USER_PWD, USER_NICKNAME)
+VALUES ('박종민', 'superfoward', '종민짱123', '갓종민님');
+
+SELECT * FROM USER;
+
+UPDATE USER
+   SET USER_TYPE = '관리자'
+ WHERE USER_ID = 'DD39';
+ 
+
+CREATE TABLE IF NOT EXISTS USER_DIARY (
+  `diary_seq` INT PRIMARY KEY AUTO_INCREMENT,
+  `user_id` VARCHAR(30) NOT NULL,
+  `diary_date` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `diary_content` VARCHAR(45) NOT NULL,
+   CONSTRAINT diary_fk_writer FOREIGN KEY (user_id) REFERENCES USER (user_id) on update cascade on delete cascade)
+ENGINE = InnoDB;
+
+INSERT INTO 
+USER_DIARY (USER_ID, DIARY_CONTENT)
+    VALUES ('SUPERFOWARD', '오운완! 뿌듯뿌듯!');
+                
+SELECT * FROM USER_DIARY;
+
+-- 운동 부위 작성
+CREATE TABLE IF NOT EXISTS VIDEO_TYPE (
+	VIDEO_TYPE_SEQ INT PRIMARY KEY AUTO_INCREMENT,
+    VIDEO_TYPE VARCHAR(45) UNIQUE NOT NULL)
+ENGINE = InnoDB;
+
+INSERT INTO VIDEO_TYPE (VIDEO_TYPE) VALUES ('전신'), ('상체'), ('하체'), ('복부'), ('여성'), ('남성'), ('다이어트'), ('벌크업');
+
+SELECT * FROM VIDEO_TYPE ORDER BY 1;
+
+CREATE TABLE IF NOT EXISTS VIDEO (
+  `video_seq` INT PRIMARY KEY AUTO_INCREMENT,
+  `video_title` VARCHAR(45) NOT NULL,
+  `video_url` VARCHAR(255) NOT NULL,
+  `video_viewcnt` INT DEFAULT 1,
+  `video_part` VARCHAR(45) NOT NULL,
+  CONSTRAINT VIDEO_TYPE_FK FOREIGN KEY (VIDEO_PART) REFERENCES VIDEO_TYPE(VIDEO_TYPE) on update cascade on delete cascade)
+ENGINE = InnoDB;
+
+INSERT INTO 
+VIDEO (video_title, video_url, video_part)
+    VALUES ('SUPERFOWARD', 'https://www.youtube.com/watch?v=9lTn99J2JcU', '전신' );
+
+
+
+CREATE TABLE IF NOT EXISTS WISHLIST (
+  `wish_seq` INT PRIMARY KEY AUTO_INCREMENT,
+  `user_id` VARCHAR(30) NOT NULL,
+  `video_seq` INT,
+  CONSTRAINT wishlist_fk_id FOREIGN KEY(user_id) REFERENCES USER (user_id) on update cascade on delete cascade,
+  CONSTRAINT wishlist_fk_video FOREIGN KEY(video_seq) REFERENCES VIDEO (video_seq) on update cascade on delete cascade)
+ENGINE = InnoDB;
+
+
+-- 게시판 타입 작성
+CREATE TABLE IF NOT EXISTS BOARD (
+    BOARD_SEQ INT PRIMARY KEY AUTO_INCREMENT,
+    BOARD_TYPE VARCHAR(30) UNIQUE NOT NULL)
+ENGINE = InnoDB;
+
+INSERT INTO BOARD (BOARD_TYPE) VALUES ('공지사항'), ('운동루틴'), ('식단'), ('지역'), ('자유'), ('상담');
+
+
+CREATE TABLE IF NOT EXISTS ARTICLE (
+    ARTICLE_SEQ INT PRIMARY KEY AUTO_INCREMENT,
+    ARTICLE_WRITER VARCHAR(30) NOT NULL,
+    ARTICLE_BOARD_TYPE VARCHAR(45) NOT NULL,
+    ARTICLE_TITLE VARCHAR(90) NOT NULL,
+    ARTICLE_CONTENT VARCHAR(300) NOT NULL,
+    ARTICLE_REG_DATE DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT ARTICLE_FK_WRITER FOREIGN KEY (ARTICLE_WRITER) REFERENCES USER (USER_ID) on update cascade on delete cascade,
+    CONSTRAINT ARTICLE_FK_BOARD_TYPE FOREIGN KEY (ARTICLE_BOARD_TYPE) REFERENCES BOARD (BOARD_TYPE) on update cascade on delete cascade)
+ENGINE = InnoDB;
+
+
+CREATE TABLE IF NOT EXISTS COMMENT (
+  `comment_seq` INT PRIMARY KEY AUTO_INCREMENT,
+  `comment_writer` VARCHAR(30) NOT NULL,
+  `comment_content` VARCHAR(45) NOT NULL,
+  `comment_article_seq` INT NOT NULL,
+  CONSTRAINT comment_fk_writer FOREIGN KEY (comment_writer) REFERENCES USER (user_id) on update cascade on delete cascade,
+  CONSTRAINT comment_fk_article_seq FOREIGN KEY (COMMENT_ARTICLE_SEQ) REFERENCES ARTICLE (ARTICLE_SEQ) on update cascade on delete cascade)
+ENGINE = InnoDB;
+
+
+INSERT INTO 
+ARTICLE (ARTICLE_WRITER, ARTICLE_BOARD_TYPE, ARTICLE_TITLE, ARTICLE_CONTENT)
+ VALUES ("dd39", "공지사항", "공지사항입니다.", "공지사항 테스트입니다. 확인이 되나 볼까여?"); 
+ 
+INSERT INTO 
+ARTICLE (ARTICLE_WRITER, ARTICLE_BOARD_TYPE, ARTICLE_TITLE, ARTICLE_CONTENT)
+ VALUES ("superfoward", "지역", "운동같이 하실 분?", "동네친구 구해요~");  
+
+INSERT INTO
+COMMENT (COMMENT_WRITER, COMMENT_CONTENT, COMMENT_ARTICLE_SEQ) 
+ VALUES ("superfoward", "댓글 남깁니다. 공지사항 확인했습니다. ", 1);
+ 
+INSERT INTO
+COMMENT (COMMENT_WRITER, COMMENT_CONTENT, COMMENT_ARTICLE_SEQ) 
+ VALUES ("dd39", "저요~", 2);
+
+SELECT * FROM USER;
+SELECT * FROM BOARD ORDER BY 1;
+SELECT * FROM ARTICLE;
+SELECT * FROM COMMENT;
+select * from video;
+-- delete from article where article_seq >= 2;  
+
+SELECT * FROM USER_DIARY;
+SELECT * FROM WISHLIST；
+
+
+SELECT A.ARTICLE_SEQ 
+	 , A.USER_ID
+	 , U.USER_NICKNAME
+     , A.USER_TYPE
+     , A.ARTICLE_BOARD_TYPE 
+     , A.ARTICLE_TITLE 
+     , A.ARTICLE_CONTENT 
+     , A.ARTICLE_REG_DATE 
+  FROM ARTICLE A
+  JOIN USER U
+    ON A.ARTICLE_WRITER = U.USER_ID;
+
+
+-- 집에서 에러나서 잠깐 추가
+-- use mysql;
+-- alter user 'root'@'localhost' identified by 'ssafy';
+-- flush privileges;

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.ssafy.ssafit.model.dao.WishDao"> 
+  
+  
+  <resultMap id="wishMap" type="WishList">
+      <result property="wishSeq" column="wish_seq"/>
+      <result property="userId" column="user_id"/>
+      <result property="videoSeq" column="video_seq"/>
+
+  </resultMap>
+  
+  <insert id="addWish" parameterType="WishList">
+          INSERT INTO WISHLIST (user_id, video_seq)
+                    VALUES (#{userId}, #{videoSeq}); 
+  </insert>
+  
+  <select id="selectWish" parameterType="String" resultMap="wishMap">
+          SELECT *
+            FROM VIDEO v join WISHLIST w
+              ON v.video_seq = w.video_seq;
+  </select>
+
+  
+  	<delete id="deleteWish" parameterType="int">
+          DELETE FROM WISHLIST
+          WHERE diary_seq = #{diarySeq}; 
+ 	</delete>
+  
+</mapper>

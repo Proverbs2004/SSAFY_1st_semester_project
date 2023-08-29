@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+ <mapper namespace="com.ssafy.ssafit.model.dao.UserDiaryDao"> 
+  
+  
+  <resultMap id="userDiaryMap" type="UserDiary">
+      <result property="diarySeq" column="diary_seq"/>
+      <result property="userId" column="user_id"/>
+      <result property="diaryDate" column="diary_date"/>
+      <result property="diaryContent" column="diary_content"/>
+  </resultMap>
+  
+  <insert id="insertUserDiary" parameterType="UserDiary">
+          INSERT INTO USER_DIARY (user_id, diary_content)
+                    VALUES (#{userId}, #{diaryContent}); 
+  </insert>
+  
+  <select id="selectUserDiary" parameterType="String" resultMap="userDiaryMap">
+          SELECT *
+            FROM USER_DIARY
+           WHERE user_id = #{userId}; 
+  </select>
+  
+  <select id="userDiarySelectAll" resultMap="userDiaryMap">
+          SELECT *
+          FROM USER_DIARY; 
+  </select>
+  
+  <update id="updateUserDiary" parameterType="UserDiary">
+          UPDATE USER_DIARY
+             SET diary_content = #{diaryContent}
+           WHERE user_id = #{userId} AND diary_seq = #{diarySeq}; 
+  </update>
+  
+  	<delete id="deleteUserDiary" parameterType="int">
+          DELETE FROM USER_DIARY
+          WHERE diary_seq = #{diarySeq}; 
+ 	</delete>
+  
+</mapper>

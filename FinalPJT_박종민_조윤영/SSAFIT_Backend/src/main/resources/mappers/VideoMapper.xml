@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.ssafy.ssafit.model.dao.VideoDao">
+
+	<!-- 나중에 sql문에 resultMap을 사용할 때 사용되므로 db의 이름과 dto의 이름을 정확히 적어주기 -->
+	<resultMap id="videoMap" type="Video">
+		<result property="videoSeq" column="video_seq" />
+		<result property="videoTitle" column="video_title" />
+		<result property="videoUrl" column="video_url" />
+
+		<result property="videoViewcnt" column="video_viewcnt" />
+		<result property="videoPart" column="video_part" />
+	</resultMap>
+
+	<!-- 비디오를 생성하기 위한 create 작성 -->
+	<insert id="insertVideo" parameterType="Video">
+		INSERT INTO VIDEO
+		(video_title, video_url ,video_part)
+		VALUES (#{videoTitle},#{videoUrl}, #{videoPart} );
+	</insert>
+	
+	
+
+	<!-- 비디오의 타이틀로 하나 가져오기 -->
+	<select id="selectVideoByTitle" parameterType="String" resultMap="videoMap">
+		SELECT *
+		FROM VIDEO
+		WHERE video_title = #{videoTitle};
+	</select>
+	
+	<!-- 추천리스트 -->
+	<select id="recommendByRandomAndViews" resultMap="videoMap">
+		SELECT *
+		FROM VIDEO
+		WHERE video_viewcnt > 5
+		ORDER BY RAND() LIMIT 5;
+	</select>
+	
+	<!-- 찜리스트 -->
+	<select id="likeVideo" parameterType="com.ssafy.ssafit.model.dto.User" resultMap="videoMap">
+		SELECT * 
+		  FROM video v
+		  JOIN WISHLIST w  
+		    ON w.video_seq = v.video_seq
+		 WHERE w.user_id = #{userId};
+
+	</select>
+
+	<!-- 전체 리스트 가져오기 -->
+	<select id="videoSelectAll" resultMap="videoMap">
+		SELECT *
+		  FROM VIDEO
+	</select>
+
+	<!-- 비디오 업데이트 -->
+	<update id="updateVideo" parameterType="Video">
+		UPDATE VIDEO
+		SET video_title = #{videoTitle}
+		WHERE video_seq = #{videoSeq}
+	</update>
+
+	<!-- 비디오 삭제 -->
+	<delete id="deleteVideo" parameterType="String">
+		DELETE FROM VIDEO
+		WHERE
+		video_title = #{videoTitle}
+	</delete>
+	
+	<!-- 조회수 업 -->
+	<update id="upViewCnt" parameterType="Video">
+		UPDATE VIDEO
+		SET video_viewcnt = video_viewcnt + 1 
+		WHERE video_seq = #{videoSeq};
+	</update>
+
+</mapper>
